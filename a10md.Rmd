@@ -1,0 +1,88 @@
+---
+title: "Quantitative Methods, Assignment 10"
+author: "rl2999@columbia.edu"
+date: "December 12, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+CHIS_2017_teen <- 
+  read_dta(file ="data/teen_2017_stata/TEEN.dta") 
+
+#%>% as_factor()
+
+```
+<!-- You may use data of your own choosing for the assignment, but the dependent variable must be binary. -->
+
+<!-- Estimate a multivariate logistic regression model that includes at least two independent variables. For this model describe: -->
+<!-- The rationale for your hypothesis -->
+<!-- Your interpretation of the regression model -->
+<!-- Interpret the regression coefficients: -->
+<!-- Use predicted probability for different values of independent variable -->
+<!-- Using odds ratios -->
+<!-- For each independent variable test whether it is statistically significant at your chosen level of significance. -->
+<!-- Test whether the regression model as a whole is statistically significant at your chosen level of significance. -->
+
+# Rationale
+
+# Interpretation of regression model
+
+# Interpretation of coefficients
+
+## Predicted probability for different values of independent variable
+
+## Interpretation by odds ratios
+
+# Independent variable significance tests
+<!-- For each independent variable test whether it is statistically significant at your chosen level of significance. -->
+
+# Regression model significance tests
+<!-- Test whether the regression model as a whole is statistically significant at your chosen level of significance. -->
+
+Our model is 
+Vapes
+
+‘QT17_E4’ [TE66] -
+
+‘QT17_D8’ [TD34] -
+People in my neighborhood are willing to help each other.
+
+‘QT17_A8’ [TA6] -
+In the past 3 years, how many times did you change schools, not counting for graduation?
+
+‘QT17_D12’ [TE64] -
+Do you feel safe in your neighborhood…
+
+‘QT17_D8’ [TD34] -
+People in my neighborhood are willing to help each other.
+
+‘QT17_L2’ [TH8] - How true do you feel the next statements are about your school and things you might do there:
+At my school, there is a teacher or some other adult...
+Who really cares about me. Would you say this is...
+
+```{r}
+
+summary(CHIS_2017_teen$te66)
+summary(CHIS_2017_teen$ta6_p1v2)
+
+CHIS_2017_teen_mod1 <- 
+  CHIS_2017_teen %>% 
+  glm(
+  formula = .$te66 ~ ta6_p1v2 + te64 + th8,
+  family = "binomial"
+)
+summary(CHIS_2017_teen_mod1)
+plot(CHIS_2017_teen_mod1$residuals)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

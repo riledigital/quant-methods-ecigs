@@ -1,0 +1,5 @@
+https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
+
+https://cran.r-project.org/web/packages/qwraps2/vignettes/summary-statistics.html
+
+https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html

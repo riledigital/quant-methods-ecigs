@@ -1,0 +1,245 @@
+---
+title: "Final Report: Predicting e-cigarette usage amongst California teenagers"
+author: "Ri Le • rl2999"
+date: "12/17/2018"
+output: pdf_document
+bibliography: references.bib
+---
+  
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+Packages <- c('tidyverse', 'acs', 'haven', 'car', 'Hmisc', 'pwr', 'survey', 'pscl','epiR', 'effects')
+lapply(Packages, require, character.only=TRUE)
+
+CHIS_2017_teen <- 
+  read_dta(file ="data/teen_2017_stata/TEEN.dta")
+
+# interpret analysis variables as factors
+CHIS_r <- CHIS_2017_teen %>%
+mutate(
+td39_r = td39 %>% as_factor(),
+te66_r = te66 %>% as_factor(),
+te64_r = te64 %>% as_factor(),
+te65_r = te65 %>% as_factor(),
+th14_r = th14 %>% as_factor(),
+te22_r = te22 %>% as_factor(),
+td43_r = td43 %>% as_factor(),
+ta4_r = ta4 %>% as_factor(),
+srw_r = srw %>% as_factor()
+)
+summary(CHIS_r$te22_r)
+levels(CHIS_r$te22_r)
+
+```
+
+# Background and Literature Review
+
+E-cigarettes and vaping are particularly powerful for teens and young people today; the novelty and newness of both have made the topic ripe for media panic. Some scholars have examined Judith Butler's notion of performativity (famously used to examine gender as a socially mediated performance) in application to the growing popularity of e-cigarettes and vaporizers, arguing that the present contestation of social values and perceptions regarding use of e-cigarettes and vaporizers indicates a critical present moment in which policy intervention to denormalize the practice could be an effective possibility [@lucherini_e-cigarettes_2018]. 
+
+While Lucherini notes that decades of anti-smoking campaigns, labelling, tax increases, and other strategies to denormalize the practice of smoking, e-cigarettes and vaporizer usage presents itself as a practice distanced from cigarette usage, providing a new frontier of contested public social meanings. Knowing that e-cigarettes are another form of nicotine consumption, this contested perception of e-cigarettes and vaporizers is noted in a North Carolina study in which a large proportion of participants perceived e-cigs as "healthy" [@anand_e-cigarette_2015].
+
+## Rising popularity of e-cigarettes
+
+With this framework in mind, it is no surprise that e-cigarettes have become reported as extremely popular amongst adolescents who are not only socially impressionable but are also likely to become dependent on nicotine as a result of their developing physiology. The JUUL company, which produces and sells the JUUL e-cigarette infamous for its teenage appeal, currently captures 70% of the e-cigarette market share in the US. The company recently ceased sales of most of its flavored refill pods—creme, mango, and fruit— over increasing pressures from the FDA over the concern of e-cigarettes becoming prevalent amongst teenagers [@kaplan_juul_2018]. 
+
+One aspect of the JUUL device that separates it from early e-cigarette products is the industrial design—its sleek, slim, rectangular profile is often compared to that of a USB flash drive, making it relatively inconspicuous and easy to conceal. Also, the device itself produces an odorless aerosol mist that quickly dissipates, lending itself well to being used in schools and environments where traditional cigarettes could not be used [@kaplan_juul_2018]. According to CNBC's reporting on CDC data, roughly 20% of high schoolers are estimated to use e-cigarettes [@lavito_fda_2018].
+
+## Types of predictors identified in other quantitative studies
+
+A range of studies have been carried out about factors relating to e-cigarettes. One study found that gender, educational attainment, and geographic region were not significantly associated with e-cigarette usage [@giovenco_factors_2014]. Neighborhood problems were associated with a 11%, 16%, and 25% higher odds of alcohol, marijuana, and e-cigarette use. Neighborhood disorganization was associated with 59% higher odds, while higher units of neighborhood social cohesion was associated with 17% lower odds of e-cig use. This study also reported that objective measures of socioeconomic disadvantage were not associated with any outcomes [@shih_individual_2017]. One study from Scotland reported that "hanging around in the street" more than 1 time a week reported an odds ratio of 4.34 in regard to trying e-cigarettes, suggesting that this may be a proxy indicator of low levels of adult supervision, which the authors note has been associated with other adolescent risk activities [@best_does_2016]. The same study noted that social networks play an important role in association, with young people who reported having a best friend who smoke having an odds ratio of over 3.3 in their models [@best_does_2016]. The North Carolina high schooler study with 2,769 respondents found positive associations with older age, tobacco use, male gender, white, use of e-cigarette by mother, parental tobacco use, and lower academic performance, while finding negative association with not knowing e-cigarette users and living with the mother [@anand_e-cigarette_2015+].
+
+# Hypothesis and variables
+
+Based on my literature review of prior studies, along with the operative data set I have chosen, my hypothesis is that the following social factors will be significant:
+
+*sochs_p1*: SOCIAL COHESION NEIGHBORHOOD SCALE, which I hypothesize is relevant as it represents the generalization of various survey responses related to neighborhood perceptions, which was noted in a previous study as being significant [@shih_individual_2017].
+*TE22*: EVER HAD MORE THAN FEW SIPS OF ALCOHOLIC DRINK, which I hypothesize will be significant, since risk behaviors are popularly hypothesized to associated with each other,
+*TD43*: RULES IN HOME FOR TURNING OFF OR PUTTING AWAY D-5 ELECTRONICS, which I hypothesize will be significant because previous studies have noted adult supervision as having a negative association with risk behaviors [@best_does_2016].
+
+In addition, I hypothesize that the following demographic variables will also be significant:
+*SRAGE_P AGE*: since I hypothesize that older ages may be more likely to partake in e-cigarette usage.
+
+My prediction variable is *TE66*: EVER SMOKED ELECTRONIC CIGARETTES.
+
+Thus, the equation for my model resembles
+$te66 = sochs_p1 + te22 + td43 + srage_p$
+
+# Methodology
+<!-- 3. Describe in detail your research methodology. -->
+I will use rudimentary multiple logistic regression to analyze the CHIS 2017 Teen survey data to build a model that incorporates elements of social cohesion and demographics to assess statistically significant variables  identified in other studies.
+
+<!-- a. Include the source of your data. -->
+  <!-- i. Describe how the data was collected and the purpose for which it was collected. -->
+  I sourced the data from the California Health Interview Survey 2017 teen dataset. The data was collected by the UCLA Center for Health Policy Research, the California Department of Public Health, and the Department of Health Care Services, and contains survey questions about lifestyle, insurance coverage, mental health, neighborhood social cohesion— among various other topics pertaining to public health. The data was collected for decision making on public health policy. 
+
+Source: http://healthpolicy.ucla.edu/chis/
+  
+In terms of methodology, the CHIS data was gathered by random-digit-dial samples of both landline and cellular phones in California, divided into several sampling strata. In each stratum, residential phone numbers were dialed, and 1 adult was randomly selected in each household, along with one1 child and adolescent. There were a total of 448 teenagers interviewed in this data in 2017, with 51% from the cell phone sample. The samples were weighted in order to create population estimates and compensate for the bias in the survey design methodology [@dutwin_chis_2018.]  
+
+Because this survey data was gathered through a complex design, we utilize the survey package for R, which allows us to estimate population totals and means, and use these estimates to create models [@lumley_complex_2011].
+```{r}
+# CHIS_sr <-
+#   svrepdesign( 
+#     data = CHIS_r,
+#     variables = CHIS_r, 
+#     weight = CHIS_2017_teen$rakedw0,
+#     scale = 1,
+#     rscales = 1,
+#     repweights = "rakedw[1-9]+" , 
+#     type = "other", 
+#     combined.weights = TRUE
+#   )
+
+#svytotal(~te66 %>% as_factor(), design = CHIS)
+
+```
+
+# Descriptive Statistics
+  
+## Descriptive stats for te66; smoked e-cigarettes
+  https://uc-r.github.io/descriptives_categorical
+
+Examining a proportion frequency table of "ever users," only 8.93% or 40 respondents reported ever trying or using e-cigarettes— contrary to the CDC figure noted earlier. However, analysis using population estimates seem to yield a similar result. [@lumley_complex_2011]
+```{r}
+
+table(CHIS_2017_teen$te66)
+prop.table(table(CHIS_2017_teen$te66 %>% as_factor()))
+
+ggplot( 
+  CHIS_2017_teen, 
+  aes(x = te66)) +
+  geom_bar() +
+  ggtitle("Comparison of 'ever users'")
+
+
+## Social cohesion vs ever users
+CHIS_r %>% ggplot( 
+  aes(y = sochs_p1, x = te66_r)) +
+  geom_violin() + ggtitle("Social cohesion vs ever used e-cigs")
+
+## Age vs ever users
+CHIS_r %>% ggplot(aes(y = srage_p, x = te66_r)) +
+  geom_violin() + ggtitle("Age vs ever used e-cigs")
+
+
+```
+
+
+# Power analysis
+Recall that power is the probability of yielding a statistically significant outcome (alpha < 0.05 in my study) and rejecting the null hypothesis (Reinhart 2015). For this study, $\alpha = 0.05$ and desired power = 0.8. In this test, $f2$ signify "effect size." For $f2$, 6.55% of variance is explained by a multiple regression performed with the input parameters [@ballard_using_nodate]. 
+
+
+```{r}
+
+pwr.f2.test(
+  f2 = NULL, # R manual reports as effective size (but not specifically what unit)
+  u = 40, # number of successful trials, YES smoked e-cigarettes
+  v = 448, # number of total trials
+  sig.level = 0.05,
+  power = 0.8
+)
+
+
+```
+
+# Model Results
+
+To create a logistical regression on e-cigarette usage, which is a discrete binary outcome of 0 and 1, I follow Lumley's suggestion to use the quasibinomial family in the glm package [@lumley_complex_2011].
+
+Bolker (2017) noted that quasi-AIC scores cannot be obtained through glm's quasi- families, which are specified by Lumley for analyzing surveys with binomial logistic regressions. Bolker suggests creating two models, one with regular "binomial" family and one with the quasi- variant, extracting AIC from the regular variant [@bolker_dealing_2017]. Note that the regular variant produces a flurry of error messages, which Lumley notes is negligible, arguing that the differences between estimates of the two are negligible. Since Lumley seems to be the only scholar publishing about this topic, I follow his advice on analyzing surveys with the survey package and examine the 
+
+```{r}
+
+# Create a new complex survey object that considers the survey weights. Adapted from Lumley.
+CHIS_sr <-
+  svrepdesign(
+    data = CHIS_r,
+    variables = CHIS_r,
+    weight = CHIS_2017_teen$rakedw0,
+    scale = 1,
+    rscales = 1,
+    repweights = "rakedw[1-9]+" ,
+    type = "other",
+    combined.weights = TRUE
+  )
+
+# This attempt uses quasibinomial family and considers survey design. However, I 
+# deviate from Lumley's suggestion of using quasibinomial family parameter since
+# quasibinomial does not report log likelihood.
+
+```
+
+```{r echo = T, warning = FALSE}
+mod1 <-
+  svyglm(
+    design = CHIS_sr,
+    formula = 
+      te66_r ~ sochs_p1 + te22_r + td43_r + srage_p,
+    na.action = "na.pass",
+    family = binomial
+  )
+```
+
+```{r}
+mod2 <-
+  svyglm(
+    design = CHIS_sr,
+    formula = 
+      te66_r ~ sochs_p1 + te22_r + td43_r + srage_p,
+    na.action = "na.pass",
+    family = quasibinomial(link = 'logit')
+  )
+summary(mod1, correlation = TRUE)
+
+# Exponentiated coefficients
+exp(mod2$coefficients)
+
+# Convert coefficients logits to probabilities.
+exp(mod2$coefficients)/(1+exp(mod2$coefficients))
+
+
+plot(mod2$residuals)
+
+#QQ Plot 
+#qqplot(mod2, id = list(n=3))
+# QQ plot is a quantile-quantile plot, shows if residuals are normally distributed.
+influenceIndexPlot(mod2, id=list(n = 3))
+#plot(predictorEffects(mod2))
+
+```
+
+# Results of analysis 
+
+The variables that show up as significant are *te_22_rYES*, *te_22_rNO* and *srage_p*. Although statistically significant in tests, the values for *te_22_RYES* are extremely low, suggesting a negligible substantive influence on odds. I suspect that *te22_r* reports YES and NO as significant since there is another factor level "INAPPLICABLE" that may be generating these results. However, recoding this extraneous factor to NA's does not resolve the issue, suggesting that there may be an idiosyncracy between my predictor te66 and te22 resulting in all factor levels of te22 being flagged as significant under the 0 level.
+
+For age, the probabilities are around .33, which suggest a 33% increase in probability of using e-cigarettes for every year of age. This appears to be the only variable flagged as signifiant at the under the 0.001 level. 
+
+# Difficulties assessing fit
+
+As discussed before, there does not seem to be an agreed-upon standard for assessing goodness of fit for logistic regressions involving survey data. Since the model does not seem to be fitted with maximum likelihood, it is not possible to obtain McFadden's Pseudo-R-squared value (this results in an error in R). 
+
+```{r warning = FALSE}
+# Can't get McFadden's R squared
+#pR2(object = mod1)
+regTermTest(mod1, ~sochs_p1 + ~te22_r + ~td43_r + ~srage_p)
+regTermTest(mod1, ~srage_p)
+AIC(mod1)
+AIC(mod2)
+
+anova(mod2, test = "Chisq")
+# For some reason, both models cannot be compared
+#anova(mod1, mod2 test = "Chisq")
+vif(mod2)
+outlierTest(mod2)
+```
+
+Lumley suggests the Wald test to test the hypothesis that the added terms are zero; in other words, if the terms have any effect on the model [@lumley_complex_2011](p.113).
+
+# Results
+
+I suspect that the results may be limited by the number of samples provided by this 1-year CHIS sample, considering that the study only contained 448 respondents. In the other studies I analyzed in my literature review, samples of at least 2,000 were considered. Although I invested time into researching measures-of-fit for logistic regressions, there were few that considered the same R packages and thus survey analysis framework proposed by Lumley. Other studies that used survey weights did not consider measures-of-fit, indicating an inconsistency in the way that logistic regression can be used as a tool for survey analysis [@giovenco_factors_2014]. For example, The Giovenco et. al study in the American Journal of Preventive Medicine only reports adjusted odds ratios, suggesting that these measures are sufficient for public health reporting use. This may explain why such measures of fit on weighted surveys of this nature are not widely published. Without measures of fit, it seems that examining ANOVA tables of coefficients are the only well-documented way to examine weighted survey data. Additionally, diagnostics for this specific subset of survey analysis are not well-documented, with Lumley's example of logistic regression omitting analysis of logistic regression assumptions or measures of fit. 
+
+My initial hypothesis was rejected, since the only variable that seemed substantively significant was age, which was noted in the Anand study as positively associated [@anand_e-cigarette_2015+]. There did not seem to be associated with any of the other variables included in my model, and the variable describing alcohol use only had an extremely small coefficient and resulting probability, which may not substantively hold.  
+
+# References
