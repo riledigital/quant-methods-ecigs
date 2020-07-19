@@ -2,6 +2,8 @@
 
 Originally created 12/15/2018 for Quantitative Methods course at Columbia University.
 
+See `QMF1.html` for full report with charts and graphs.
+
 ## Results
 My initial hypothesis was rejected, since the only variable that seemed substantively significant was age, which was noted in the Anand study as positively associated (Anand et al. 2015 +). There did not seem to be associated with any of the other variables included in my model, and the variable describing alcohol use only had an extremely small coefficient and resulting probability, which may not substantively hold.
 
